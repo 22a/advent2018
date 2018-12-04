@@ -31,9 +31,7 @@ const sleepUpdates = sortedLines.map(line => {
   }
 })
 
-const sleepData = sleepUpdates.reduce(
-  (acc, update) => {
-    console.log(update.type)
+const sleepData = sleepUpdates.reduce((acc, update) => {
     switch (update.type) {
       case 'rotate':
         acc.activeGuardId = update.guardId
@@ -58,42 +56,31 @@ const sleepData = sleepUpdates.reduce(
     }
     return acc
   },
-  {guardMinuteHistory: {}, activeGuardId: null, guardHasBeenSleepingSince: null}
+  {
+    guardMinuteHistory: {},
+    activeGuardId: null,
+    guardHasBeenSleepingSince: null
+  }
 )
 
 const refinedSleepData = {
   minutes: sleepData.guardMinuteHistory,
-  sleepTotals: Object.keys(sleepData.guardMinuteHistory).reduce(
-    (acc, guardId) => {
-      return {
-        ...acc,
-        [guardId]: sleepData.guardMinuteHistory[guardId].reduce(
-          (a, b) => a + b,
-          0
-        ),
-      }
-    },
-    {}
-  ),
+  sleepTotals: Object.keys(sleepData.guardMinuteHistory).reduce((acc, guardId) => ({
+    ...acc,
+    [guardId]: sleepData.guardMinuteHistory[guardId].reduce((a, b) => a + b, 0),
+  }), {})
 }
-
-console.log(refinedSleepData)
 
 const guardIds = Object.keys(refinedSleepData.sleepTotals)
 
-const sleepiestHead = guardIds.reduce((highestSoFar, guardId) => {
-  if (
-    refinedSleepData.sleepTotals[guardId] >
-    refinedSleepData.sleepTotals[highestSoFar]
-  ) {
-    return guardId
-  } else {
-    return highestSoFar
-  }
-}, guardIds[0])
+const sleepiestGuard = guardIds.reduce((highestSoFar, guardId) =>
+  refinedSleepData.sleepTotals[guardId] >
+  refinedSleepData.sleepTotals[highestSoFar]
+    ? guardId
+    : highestSoFar
+, guardIds[0])
 
-const sleepiestMinute = refinedSleepData.minutes[sleepiestHead].indexOf(
-  Math.max(...refinedSleepData.minutes[sleepiestHead])
-)
+const timeSleptOnMostSleptMinute = Math.max(...refinedSleepData.minutes[sleepiestGuard])
+const sleepiestMinute = refinedSleepData.minutes[sleepiestGuard].indexOf(timeSleptOnMostSleptMinute)
 
-console.log(Number(sleepiestHead) * sleepiestMinute)
+console.log(Number(sleepiestGuard) * sleepiestMinute)
