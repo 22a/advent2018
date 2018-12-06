@@ -3,10 +3,6 @@ const fs = require('fs')
 const contents = fs.readFileSync('../input.txt', 'utf8')
 const lines = contents.split('\n').filter(line => line !== '')
 
-// 1. calculate all owners
-// 2. eliminate all owners with an edge
-// 3. max ownership on board
-
 const points = lines.map((line, i) => {
   const [x, y] = line.split(',').map(Number)
   return {x, y, id: i}
@@ -29,25 +25,14 @@ const {minX, maxX, minY, maxY} = points.reduce(
   }
 )
 
-const normalisedPoints = points.map(point => ({
-  x: point.x - minX,
-  y: point.y - minY,
-  id: point.id,
-}))
-
 const manhattanDistance = (x1, y1, x2, y2) =>
   Math.abs(x1 - x2) + Math.abs(y1 - y2)
 
 const getOwner = (x, y) => {
-  let closestPointSoFar = normalisedPoints[0].id
-  let shortestDistanceSoFar = manhattanDistance(
-    x,
-    y,
-    normalisedPoints[0].x,
-    normalisedPoints[0].y
-  )
+  let closestPointSoFar = points[0].id
+  let shortestDistanceSoFar = manhattanDistance(x, y, points[0].x, points[0].y)
   let jointOwner = false
-  for (let point of normalisedPoints) {
+  for (let point of points) {
     const dist = manhattanDistance(x, y, point.x, point.y)
     if (dist < shortestDistanceSoFar) {
       jointOwner = false
@@ -63,17 +48,15 @@ const getOwner = (x, y) => {
 const ownersWhichHaveInfiniteOwnership = new Set()
 const ownershipCounts = {}
 
-const xLen = maxX - minX
-const yLen = maxY - minY
-for (let yI = 0; yI < yLen; yI++) {
-  for (let xI = 0; xI < xLen; xI++) {
+for (let yI = minY; yI <= maxY; yI++) {
+  for (let xI = minX; xI <= maxX; xI++) {
     const owner = getOwner(xI, yI)
     if (!isNaN(owner)) {
       ownershipCounts[owner] = ownershipCounts[owner]
         ? ownershipCounts[owner] + 1
         : 1
     }
-    if (yI === 0 || yI === yLen - 1 || xI === 0 || xI === yLen - 1) {
+    if (yI === minY || yI === maxY || xI === minX || xI === maxX) {
       ownersWhichHaveInfiniteOwnership.add(owner)
     }
   }
