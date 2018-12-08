@@ -1,95 +1,41 @@
 const fs = require('fs')
 
-// const contents = fs.readFileSync('../input.txt', 'utf8')
-const contents = fs.readFileSync('../in.txt', 'utf8')
+const contents = fs.readFileSync('../input.txt', 'utf8')
 const lines = contents.split('\n').filter(line => line !== '')
 
 const branches = lines.map(line => [line[5], line[36]])
 
-const stepTree = {}
+const deps = branches.reduce((acc, [parent, child]) => {
+  acc[parent] = acc[parent] || {name: parent, dependentOn: {}}
+  acc[child] = acc[child] || {name: child, dependentOn: {}}
+  acc[child].dependentOn[parent] = true
+  return acc
+}, {})
 
-// const exampleTree = {
-//   a: {
-//     b: {
-//       Q: {},
-//     },
-//     d: {
-//       e: {},
-//     },
-//   },
-//   f: {
-//     g: {
-//       h: {},
-//     },
-//     i: {
-//       j: {},
-//     },
-//   },
-// }
+let order = ''
+let done = false
 
-const isTreeMember = (tree, searchKey) => {
-  for (const key of Object.keys(tree)) {
-    if (key === searchKey) {
-      return true
-    } else if (isTreeMember(tree[key], searchKey)) {
-      return true
-    }
-  }
-
-  return false
-}
-
-const attachChild = (tree, parent, child) => {
-  for (const key of Object.keys(tree)) {
-    if (key === parent) {
-      tree[parent][child] = {}
-    } else {
-      attachChild(tree[key], parent, child)
-    }
-  }
-}
-
-const insertPair = (tree, parent, child) => {
-  if (isTreeMember(tree, parent)) {
-    attachChild(tree, parent, child)
-  } else {
-    tree[parent] = {
-      [child]: {},
-    }
-  }
-}
-
-const breadthFirstKeyGrab = tree => {
-  let keysAtThisLevel = []
-  let children = []
-
-  for (const key of Object.keys(tree)) {
-    keysAtThisLevel.push(key)
-    children.push(breadthFirstKeyGrab(tree[key]))
-  }
-
-  return [keysAtThisLevel, ...children]
-}
-
-const flattenDeep = arr =>
-  arr.reduce(
-    (acc, val) =>
-      Array.isArray(val) ? acc.concat(flattenDeep(val)) : acc.concat(val),
-    []
+while (!done) {
+  const availableNodes = Object.values(deps).filter(
+    node => Object.keys(node.dependentOn).length === 0
   )
 
-let uniq = arr => [...new Set(arr)]
+  if (availableNodes.length === 0) {
+    done = true
+    console.log(order)
+  } else {
+    const sortedAvailableNodes = availableNodes.sort(
+      (a, b) => (a.name < b.name ? -1 : 1)
+    )
 
-branches.map(([parent, child]) => {
-  console.log(parent, child)
-  insertPair(stepTree, parent, child)
-})
+    const nextNodeName = sortedAvailableNodes[0].name
 
-const allKeys = breadthFirstKeyGrab(stepTree)
+    Object.values(deps).forEach(node => {
+      delete node.dependentOn[nextNodeName]
+    })
 
-const flattenedKeys = flattenDeep(allKeys)
+    delete deps[nextNodeName]
 
-const order = uniq(flattenedKeys.reverse()).reverse()
-const orderStr = order.join('')
-
-console.log(orderStr)
+    order += nextNodeName
+  }
+}
