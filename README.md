@@ -39,3 +39,9 @@ Day | Part | Language(s)
 [7](https://adventofcode.com/2018/day/7)| 1 | [JavaScript](https://github.com/22a/advent2018/blob/master/07/js/part1.js), TBA
 [7](https://adventofcode.com/2018/day/7)| 2 | [JavaScript](https://github.com/22a/advent2018/blob/master/07/js/part2.js), TBA
  | | 
+[8](https://adventofcode.com/2018/day/8)| 1 | [JavaScript](https://github.com/22a/advent2018/blob/master/08/js/part1.js), TBA
+[8](https://adventofcode.com/2018/day/8)| 2 | [JavaScript](https://github.com/22a/advent2018/blob/master/08/js/part2.js), TBA
+ | | 
+[9](https://adventofcode.com/2018/day/9)| 1 | [JavaScript](https://github.com/22a/advent2018/blob/master/09/js/part1.js), TBA
+[9](https://adventofcode.com/2018/day/9)| 2 | [JavaScript](https://github.com/22a/advent2018/blob/master/09/js/part2.js), TBA
+ | | 
